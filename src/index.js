@@ -19,6 +19,19 @@ import {
 } from "lodash";
 import rustReserved from "rust-keywords";
 
+const basic = [
+  "string",
+  "number",
+  "number",
+  "boolean",
+  "any",
+  "string[]",
+  "number[]",
+  "number[]",
+  "boolean[]",
+  "any[]"
+];
+
 const typeNames = {
   STRING: "string",
   NUMBER: "number",
@@ -39,6 +52,24 @@ const mapping = {
     types: typeNames,
     optional: "?",
     handleArray: (className = "", any) => (any ? "any[]" : `${className}[]`)
+  },
+  "graphql-schema": {
+    interface: "type",
+    separator: "",
+    startingBrace: "{",
+    endingBrace: "}",
+    terminator: "",
+    equator: "",
+    types: {
+      STRING: "String",
+      NUMBER: "Float",
+      INTEGER: "Int",
+      BOOLEAN: "Boolean",
+      ARRAY: "[]",
+      ANY: "any"
+    },
+    optional: "?",
+    handleArray: (className = "", any) => (any ? "[fix__me]" : `[${className}]`)
   },
   typescript: {
     interface: "interface",
@@ -314,7 +345,11 @@ export default function transform(obj, options) {
   langDetails = {};
   optionalProperties = {};
 
-  const { objectName, lang, rustCase } = merge({}, defaultOptions, options);
+  const { objectName, lang, rustCase, clsNamePrefix = "" } = merge(
+    {},
+    defaultOptions,
+    options
+  );
 
   if (rustCase !== "camelCase" && rustCase !== "snakeCase") {
     throw new Error("rustCase can only be 'camelCase' or 'snakeCase'.");
@@ -341,7 +376,7 @@ export default function transform(obj, options) {
 
   Object.keys(classes).map(clsName => {
     output = preInterface || "";
-    output += `${langDetails.interface} ${clsName}${equator} ${startingBrace}\n`;
+    output += `${langDetails.interface} ${clsNamePrefix}${clsName}${equator} ${startingBrace}\n`;
 
     const keys = Object.keys(classes[clsName]);
 
@@ -349,9 +384,12 @@ export default function transform(obj, options) {
       const _separator =
         i === keys.length - 1 && hideTerminatorAtLast ? "" : separator;
 
-      output += `${rustRename(key, lang, clsName, rustCase)}: ${classes[
-        clsName
-      ][key]}${_separator}\n`;
+      const val = `${classes[clsName][key]}`;
+      output += `${rustRename(key, lang, clsName, rustCase)}: ${basic.indexOf(
+        val
+      ) === -1
+        ? clsNamePrefix
+        : ""}${val}${_separator}\n`;
     });
     output += `${endingBrace}${terminator}\n\n`;
     localClasses[clsName] = output;

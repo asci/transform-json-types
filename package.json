@@ -1,7 +1,7 @@
 {
-  "name": "transform-json-types",
-  "version": "0.4.0",
-  "description": "An utility to generate Flow, TypeScript, Rust Serde Struct and Scala Case Class from JSON.",
+  "name": "transform-json-types-fixed",
+  "version": "0.4.1",
+  "description": "Fork: An utility to generate Flow, TypeScript, Rust Serde Struct and Scala Case Class from JSON.",
   "main": "dist/index.js",
   "module": "src/index.js",
   "browser": "umd/index.js",
@@ -12,11 +12,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/transform-it/transform-json-types.git"
+    "url": "git+https://github.com/asci/transform-json-types.git"
   },
   "scripts": {
     "commit": "git cz",
     "test": "ava",
+    "test:update-snapshots": "ava --update-snapshots",
     "test:watch": "ava --watch",
     "test:cover": "nyc ava",
     "test:report": "cat ./coverage/lcov.info | codecov && rm -rf ./coverage",
